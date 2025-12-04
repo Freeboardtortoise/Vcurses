@@ -353,9 +353,20 @@ fn (mut b Buffer) display(mut screen Screen) Buffer {
 	}
 	return b
 }
+fn (mut screen Screen) change_buffer(b Buffer) Screen {
+	for i := 0; i < b.screen_size.height; i++ {
+		for j := 0; j < b.screen_size.width; j++ {
+			if b.buffer[i][j].char != screen.buffer.buffer[i][j].char {
+				what_to_give := b.buffer[i][j]
+				screen.propper_addstr(what_to_give, Pos{j,i})
+			}
+		}
+	}
+	return screen
+}
 
 pub fn (mut screen Screen) show(buffer Buffer) Screen {
-	screen.buffer = buffer
+	screen.change_buffer(buffer)
 	screen.buffer.display(mut screen)
 	return screen
 }
