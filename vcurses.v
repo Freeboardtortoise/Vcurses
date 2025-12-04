@@ -356,9 +356,13 @@ fn (mut b Buffer) display(mut screen Screen) Buffer {
 fn (mut screen Screen) change_buffer(b Buffer) Screen {
 	for i := 0; i < b.screen_size.height; i++ {
 		for j := 0; j < b.screen_size.width; j++ {
-			if b.buffer[i][j].char != screen.buffer.buffer[i][j].char {
+			if b.buffer[i][j].char != screen.buffer.buffer[i][j].char ||
+					b.buffer[i][j].fg != screen.buffer.buffer[i][j].fg ||
+					b.buffer[i][j].bg != screen.buffer.buffer[i][j].bg
+				{
 				what_to_give := b.buffer[i][j]
-				screen.propper_addstr(what_to_give, Pos{j,i})
+				screen.buffer.buffer[i][j] = what_to_give
+				screen.buffer.buffer[i][j].dirty = true
 			}
 		}
 	}
