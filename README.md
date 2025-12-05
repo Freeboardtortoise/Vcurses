@@ -74,6 +74,7 @@ data := screen.getch()
 ```
 returns a string containing the charactor that was inputted
 
+
 ### Buffers
 #### Creating a buffer
 ```v
