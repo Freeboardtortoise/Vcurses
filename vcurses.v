@@ -178,27 +178,62 @@ fn disable_raw_mode() {
     os.system("stty sane")
 }
 
-pub fn (mut screen Screen) rect(pos1 Pos, pos2 Pos, fill bool, attr []string) Screen {
-	// attributes
-	initial_spot := screen.buffer.cursor_pos
-	screen.buffer.move_cursor(pos1)
-	screen.buffer.write("╔", attr)
-	screen.buffer.write("=".repeat(pos2.x - pos1.x), attr) // the top peices like -
-	screen.buffer.write("╗", attr)
-	screen.buffer.move_cursor(Pos{pos1.x, pos2.y})
-	screen.buffer.write("╚", attr)
-	screen.buffer.write("=".repeat(pos2.x - pos1.x), attr)
-	screen.buffer.write("╝",attr)
-
-	for i := pos1.y + 1; i < pos2.y; i++ {
-		screen.buffer.move_cursor(Pos{pos1.x, i})
-		screen.buffer.write("║", attr)
-		screen.buffer.write(" ".repeat(pos2.x - pos1.x), attr)
-		screen.buffer.write("║",attr)
+pub fn (mut screen Screen) rect(pos1 Pos, pos2 Pos, attr []string) Screen {
+	mut buffer := screen.buffer
+	initial_spot := buffer.cursor_pos
+	mut npos1 := pos1
+	mut npos2 := pos2
+	// error checking for incorrect buffer sizes
+	if npos1.x > npos2.x {
+		npos1, npos2 = npos2, npos1
 	}
-	screen.buffer.move_cursor(initial_spot)
+	if npos1.y > npos2.y {
+		npos1, npos2 = npos2, npos1
+	}
+	if npos1.x > buffer.screen_size.width {
+		npos1.x = buffer.screen_size.width
+	}
+	if npos2.x > buffer.screen_size.width {
+		npos2.x = buffer.screen_size.width
+	}
+	if npos1.y > buffer.screen_size.height {
+		npos1.y = buffer.screen_size.height
+	}
+	if npos2.y > buffer.screen_size.height {
+		npos2.y = buffer.screen_size.height
+	}
+	if npos1.x < 0 {
+		npos1.x = 0
+	}
+	if npos1.y < 0 {
+		npos1.y = 0
+	}
+	if npos2.x < 0 {
+		npos2.x = 0
+	}
+	if npos2.y < 0 {
+		npos2.y = 0
+	}
+	// actual stuff
+	buffer.move_cursor(npos1)
+	buffer.write("╔",attr)
+	buffer.write("=".repeat(npos2.x - npos1.x - 2), attr) // the top peices like -
+	buffer.write("╗",attr)
+	buffer.move_cursor(Pos{npos1.x, npos2.y - 1})
+	buffer.write("╚",attr)
+	buffer.write("=".repeat(npos2.x - npos1.x - 2),attr)
+	buffer.write("╝",attr)
+
+	for i := npos1.y + 1; i < npos2.y - 1; i++ {
+		buffer.move_cursor(Pos{npos1.x, i})
+		buffer.write("║",attr)
+		buffer.write(" ".repeat(npos2.x - pos1.x - 2),attr)
+		buffer.write("║",attr)
+	}
+	buffer.move_cursor(initial_spot)
 	return screen
 }
+
 pub fn (mut screen Screen) getch() string {
 	mut ch := readchar() // or os.input() and take first byte
 	return ch
@@ -226,6 +261,10 @@ pub fn (mut screen Screen) set_color_pair(fg string, bg string) Screen{
 	screen.buffer.set_color_pair(fg, bg)
 	screen.buffer.display(mut screen)
 	return screen
+}
+
+pub fn (screen Screen) size() Size {
+	return screen.screen_size
 }
 
 
@@ -446,4 +485,7 @@ pub fn (mut b Buffer) set_color_pair(fg string, bg string) Buffer{
 			}
 		}
 	return b
+}
+pub fn (buffer Buffer) size() Size {
+	return buffer.screen_size
 }
