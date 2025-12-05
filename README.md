@@ -56,7 +56,8 @@ screen.rect(vcurses.Pos{x:0,y:0}, vcurses.Pos{x:0,y:0}, ["bg color", "fg color"]
 getch is the function to get one character of input from a user.
 _nb: this doesnt extend to the arrow keys or function keys, soon will be added_
 ```v
-data := screen.getch()```
+data := screen.getch()
+```
 
 ### Buffers
 #### Creating a buffer
