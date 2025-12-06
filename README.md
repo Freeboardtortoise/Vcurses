@@ -11,6 +11,17 @@ To install vcurses on your machine... run the following command in your terminal
  v install Freeboardtortoise.vcurses
 ```
 
+## documentation notation
+### functions
+``` <optional (struct pass type)><function name>(<arguments>) >> <return type>```
+### \<arguments\>
+```<argument type> <argument name>```
+### return type
+either none (no return value) or a Struct or a V standard type
+### struct pass type
+```<struct name>```
+
+
 ## Usage
 * NB: dont use print() or println() functions EVER *
 #### Import the module
@@ -19,96 +30,85 @@ import freeboardtortoise.vcurses
 ```
 #### Creating and initialising the terminal for vcurses
 ```v
-mut screen := vcurses.initialise()
+Notation: vcurses.initialise() >> Screen
 ```
 returns a private struct used by the rest of the api/module
 _nb: when adding vcurses.initialise... before the program ends you must uninit the module_
 #### uninitialising the terminal
 ```v
-vcurses.uninit()
+Notation: vcurses.uninit() >> none
 ```
-returns nothing
 #### Clearing the screen
 ```v
-screen.clear()
+Notation: Screen.clear() >> none
 ```
 returns nothing
 #### Addstr
 addstr is the function to add text to the screen or a buffer in a specific position
 ```v
 
-screen.addstr("text to add", vcurses.Pos{x:0 , y:0 }, ["bg color", "fg color"]) // insert whatever x and y positions that are needed.
+Notation: Screen.addstr(string text, Pos pos, []string attributes) >> none
 ```
-returns nothing
 #### Write
 write is the function used to add text to a screen or a buffer.
 ```v
-screen.write("what to write")
+Notation: Screen.write(string text) >> none
 ```
-returns nothing
 #### Move_cursor
 move_cursor is the function to move the cursor to a position on the screen or in the buffer
 ```v
-screen.move_cursor(vcurses.Pos{x:0 , y:0 }) // insert whatever x and y positions that are needed.
+Notation: Screen.move_cursor(pos where) >> none
 ```
-returns nothing
 #### Rect
 rect is the function to draw rectangles onto the screen in a certain position
 _note: the default for this librarys rect function is to not fill the rect... an optional arg will later be added to fill the rect_
 ```v
-screen.rect(vcurses.Pos{x:0,y:0}, vcurses.Pos{x:0,y:0}, ["bg color", "fg color"]) // change pos1 and pos2 to fit your needs
+Notation: Screen.rect(Pos TopLeft, Pos BottomRight, []string attributes) >> none
 ```
-returns nothing
 #### getting the screen_size
 ```v
-screen.size()
+Notation: Screen.size() >> Size
 ```
-returns a Size struct (see the Size struct under the Structs section)
 
 ### Input
 #### Getch
 getch is the function to get one character of input from a user.
 _nb: this doesnt extend to the arrow keys or function keys, soon will be added_
 ```v
-data := screen.getch()
+Notation: Screen.getch() >> string
 ```
 returns a string containing the charactor that was inputted
 
 
 ### Buffers
 #### Creating a buffer
-```v
-buffer := Buffer.new("name of the buffer")
 ```
-returns a Buffer struct (see the Buffer struct under the Structs section)
+Notation: Buffer.new(string bufferName) >> Buffer
+```
 #### Writing to a buffer
-```v
-buffer.write("string to write to the buffer", ["bg color", "fg color"])
 ```
-returns nothing
+Notation: Buffer.write(string text, []string attributes) >> none
+```
 #### Clearing a buffer
-```v
-buffer.clear()
 ```
-returns nothing
+Notation: Buffer.clear() >> none
+```
 #### Move the buffer cursor
-```v
-buffer.move_cursor(vcurses.Pos{0,0}) // adjust to your liking
 ```
-returns nothing
+Notation: Buffer.move_cursor(Pos where) >> none
+```
 #### Adding a string to a specific place in the buffer
 ```v
-buffer.addstr("string to add", vcurses.Pos{0,0}, ["bg color", "fg color"]) // adjust as needed
+Notation: Buffer.addstr(string text, Pos position, []string attributes) >> none
 ```
-returns nothing
 #### Add a rect to a buffer
 ```v
-buffer.rect(vcurses.Pos{0,0}, vcurses.Pos{0,0}, ["bg color", "fg color"]) // adjust values to your liking
+Notation: Buffer.rect(Pos pos, Pos pos, []string attributes) >> none
 ```
 returns nothing
 #### buffer size
 ```v
-buffer.size()
+Notation: Buffer.size() >> Size
 ```
 returns a Size struct (see the Size struct under the Structs section)
 #### NOTE
@@ -135,14 +135,32 @@ an attribute arg \[3\] if the value is "" it will default to the current default
 
 #### Set color pair
 ```v
-screen.set_color_pair("foreground color","background color")
+Notation: Screen.set_color_pair(string foregroundColor,string backgroundColor) >> none
 ```
-returns nothing
 or for a buffer
 ```v
-buffer.set_color_pair("foreground color", "background color")
+Notation: Buffer.set_color_pair(string foregroundColor, string backgroundColor) >> none
 ```
-returns nothing
+## Attributes
+attributes are a list of strings containing the color names that you want to add to the text as well as other things you would like to add to the text such as bold, italics and the like
+### format
+```["background color", "forground color", "any other attributes"]```
+
+all attributes
+| attributes   | what they do     |
+| ----------   | ---------------- |
+| bold         | bold text        |
+| italic       | italic text      |
+| highlight    | highlight text   |
+| underline    | underline text   |
+| dim          | make text lighter|
+| blink        | make text blink  |
+| reverse      | reverse text     |
+| hidden       | hide text        |
+| strikethrough| draw line through|
+any order is allowed
+note that attributes are case sensitive
+italics is a bit fishy (terminal specific)
 
 ## Structs
 ### Pos
@@ -151,9 +169,9 @@ in order to make a Size you do the following ```vcurses.Pos{x:<x possition>, y:<
 you can also make one like so ```vcurses.Pos{<x>, <y>} // replace <x> and <y> with their respective values```
 
 ### Size
-the Size struct has two ```int``` values ```width``` and ```height```
-to create a Size struct do the following ```vcurses.Size{<width>, <height>}``` adjust as needed
-to get values w and h from a size you do ```size.width``` and ```size.height```
+the Size struct has two `int` values `width` and `height`
+Create a Size struct: `vcurses.Size{<width>, <height>}`
+Get values width and height from a size struct: ```size.width``` and ```size.height```
 
 
 

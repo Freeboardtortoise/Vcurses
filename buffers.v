@@ -17,7 +17,7 @@ struct Buffer {
 pub fn Buffer.new(name string) Buffer {
 	screen_size := get_size()
 	mut b := Buffer{
-		buffer: [][]Cell{len: int(screen_size.height), init: []Cell{len: int(screen_size.width), init: 	Cell{char: ` `, fg: "", bg: "", dirty: true}}}  // 3 rows × 5 columns
+		buffer: [][]Cell{len: int(screen_size.height), init: []Cell{len: int(screen_size.width), init: 	Cell{char: ` `,  dirty: true, attr: []string{len: 10, init: ""}}}}  // 3 rows × 5 columns
 		cursor_pos: Pos{0,0},
 		name: name,
 		screen_size: screen_size
@@ -30,17 +30,8 @@ pub fn (mut b Buffer) write(text string, attr []string) Buffer {
 	for letter in text.runes() {
     b.buffer[b.cursor_pos.y][b.cursor_pos.x].char = letter
     b.buffer[b.cursor_pos.y][b.cursor_pos.x].dirty = true
-    nattr := get_attributes(attr)
-    if nattr.bg == "" {
-			b.buffer[b.cursor_pos.y][b.cursor_pos.x].bg = b.bg
-		} else {
-			b.buffer[b.cursor_pos.y][b.cursor_pos.x].bg = nattr.bg
-		}
-		if nattr.fg == "" {
-			b.buffer[b.cursor_pos.y][b.cursor_pos.x].fg = b.fg
-    } else {
-    	b.buffer[b.cursor_pos.y][b.cursor_pos.x].fg = nattr.fg
-    }
+    b.buffer[b.cursor_pos.y][b.cursor_pos.x].attr = attr
+
     b.cursor_pos.x++;
     if b.cursor_pos.x >= b.screen_size.width {
 			b.cursor_pos.x = 0
@@ -59,14 +50,14 @@ fn (mut b Buffer) write_cells(text []Cell, attr []string) Buffer {
     b.buffer[b.cursor_pos.y][b.cursor_pos.x].dirty = true
     //changing bg and fg
 		if attr[0] == "" {
-			b.buffer[b.cursor_pos.y][b.cursor_pos.x].bg = b.bg
+			b.buffer[b.cursor_pos.y][b.cursor_pos.x].attr[0] = b.bg
 		} else {
-			b.buffer[b.cursor_pos.y][b.cursor_pos.x].bg = attr[0]
+			b.buffer[b.cursor_pos.y][b.cursor_pos.x].attr[1] = attr[0]
 		}
 		if attr[1] == "" {
-			b.buffer[b.cursor_pos.y][b.cursor_pos.x].fg = b.fg
+			b.buffer[b.cursor_pos.y][b.cursor_pos.x].attr[1] = b.fg
     } else {
-    	b.buffer[b.cursor_pos.y][b.cursor_pos.x].fg = attr[1]
+    	b.buffer[b.cursor_pos.y][b.cursor_pos.x].attr[1] = attr[1]
     }
     b.cursor_pos.x++;
     if b.cursor_pos.x >= b.screen_size.width {
@@ -125,8 +116,7 @@ fn (mut screen Screen) change_buffer(b Buffer) Screen {
 	for i := 0; i < b.screen_size.height; i++ {
 		for j := 0; j < b.screen_size.width; j++ {
 			if b.buffer[i][j].char != screen.buffer.buffer[i][j].char ||
-					b.buffer[i][j].fg != screen.buffer.buffer[i][j].fg ||
-					b.buffer[i][j].bg != screen.buffer.buffer[i][j].bg
+					b.buffer[i][j].attr != screen.buffer.buffer[i][j].attr
 				{
 				what_to_give := b.buffer[i][j]
 				screen.buffer.buffer[i][j] = what_to_give
@@ -203,12 +193,12 @@ pub fn (mut b Buffer) set_color_pair(fg string, bg string) Buffer{
 	b.fg = fg
 	for mut row in b.buffer {
 		for mut c in row {
-			if c.bg == "" {
-				c.bg = b.bg
+			if c.attr[0] == "" {
+				c.attr[0] = b.bg
 				c.dirty = true
 			}
-			if c.fg == "" {
-				c.fg = b.fg
+			if c.attr[1] == "" {
+				c.attr[1] = b.fg
 				c.dirty = true
 				}
 			}

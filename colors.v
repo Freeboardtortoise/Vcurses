@@ -1,5 +1,5 @@
 module vcurses
-fn ansi_from_string(name string, is_bg bool) !string {
+fn ansi_from_string(name string, is_bg bool) string {
     code := match name.to_lower() {
         'black' { if is_bg { 40 } else { 30 } }
         'red' { if is_bg { 41 } else { 31 } }
@@ -17,35 +17,25 @@ fn ansi_from_string(name string, is_bg bool) !string {
         'bright_magenta' { if is_bg { 105 } else { 95 } }
         'bright_cyan' { if is_bg { 106 } else { 96 } }
         'bright_white' { if is_bg { 107 } else { 97 } }
-        else { return error('unknown color: $name') }
+        else { return "" }
     }
     return "\x1b[${code}m"
 }
-
-struct Attributes {
-pub:
-  bg string
-  fg string
-  bold bool
-  italic bool
-  highlight bool
-  underline bool
-}
-fn get_attributes(atributes []string) Attributes {
-  // color
-  // [0] bg
-  // [1] fg
-  // [2] bold
-  // [3] italic
-  // [4] highlight
-  // [5] underline
-  // only returning ones that exist else returning false or ""
-  return Attributes{
-    bg: atributes[0] or { "" },
-    fg: atributes[1] or { "" },
-    bold: atributes.len > 2 && atributes[2] == "bold",
-    italic: atributes.len > 3 && atributes[3] == "italic",
-    highlight: atributes.len > 4 && atributes[4] == "highlight",
-    underline: atributes.len > 5 && atributes[5] == "underline"
-  }
+fn attributes_to_ansi(attributes []string) string {
+	mut ansi := ""
+	fg := ansi_from_string(attributes[0], false)
+	bg := ansi_from_string(attributes[1], true)
+	ansi += fg + bg
+	for attribute in attributes {
+		if attribute == "bold" { ansi += "\x1b[1m" }
+		if attribute == "italic" { ansi += "\x1b[3m" }
+		if attribute == "highlight" { ansi += "\x1b[7m" }
+		if attribute == "underline" { ansi += "\x1b[4m" }
+		if attribute == "dim" { ansi += "\x1b[2m" }
+		if attribute == "blink" { ansi += "\x1b[5m" }
+		if attribute == "reverse" { ansi += "\x1b[7m" }
+		if attribute == "hidden" { ansi += "\x1b[8m" }
+		if attribute == "strikethrough" { ansi += "\x1b[9m" }
+	}
+	return ansi
 }

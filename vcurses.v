@@ -23,9 +23,8 @@ mut:
 struct Cell {
 mut:
 	char rune
-	fg string
-	bg string
 	dirty bool
+	attr []string
 }
 
 
@@ -114,9 +113,9 @@ pub fn (mut screen Screen) write(text string, attr []string) Screen{
 
 fn (mut screen Screen) proper_write(c []Cell) Screen {
   for ce in c {
-		fg := ansi_from_string(ce.fg, false) or { "" }
-		bg := ansi_from_string(ce.bg, true) or { "" }
-		print("${fg}${bg}${ce.char.str()}\x1b[0m")
+		mut attribs_to_pass := ce.attr.clone()
+		attributes := attributes_to_ansi(attribs_to_pass)
+		print("${attributes}${ce.char.str()}\x1b[0m")
     screen.cursor_pos.x++
 
     // handle wrapping
@@ -193,7 +192,7 @@ pub fn (mut screen Screen) rect(pos1 Pos, pos2 Pos, attr []string) Screen {
 	}
 	// actual stuff
 	buffer.move_cursor(npos1)
-	buffer.write("╔",attr)
+	buffer.write("╔", attr)
 	buffer.write("=".repeat(npos2.x - npos1.x - 2), attr) // the top peices like -
 	buffer.write("╗",attr)
 	buffer.move_cursor(Pos{npos1.x, npos2.y - 1})
