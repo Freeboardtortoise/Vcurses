@@ -3,6 +3,53 @@ module vcurses
 import os
 import time
 
+// raw mode stuff
+struct C.termios {
+    c_iflag u32
+    c_oflag u32
+    c_cflag u32
+    c_lflag u32
+    c_cc [32]byte
+    c_ispeed u32
+    c_ospeed u32
+}
+
+
+fn C.tcgetattr(fd int, term &Termios) int
+fn C.tcsetattr(fd int, when int, term &Termios) int
+
+const icanon = 0x2
+const echo = 0x8
+const tcsanow = 0
+const ixon = 0x200
+const icrnl = 0x100
+const opost = 0x1
+const vmin = 6
+const vtime = 5
+
+fn raw_on() C.termios {
+	mut orig := C.termios{}
+	C.tcgetattr(0, &orig)
+
+	mut raw := orig
+	raw.c_lflag &= ~(icanon | echo)
+	raw.c_iflag &= ~(ixon | icrnl)
+	raw.c_oflag &= ~opost
+	raw.c_cc[vmin] = 1
+	raw.c_cc[vtime] = 0
+
+	C.tcsetattr(0, tcsanow, &raw)
+	return orig
+}
+
+fn raw_off(orig C.termios) {
+	C.tcsetattr(0, tcsanow, &orig)
+}
+
+
+
+
+
 pub struct Pos {
 pub mut:
 	x int
@@ -15,6 +62,7 @@ pub:
 }
 pub struct Screen {
 	screen_size Size
+	thing C.termios
 mut:
 	cursor_pos Pos
 	buffer Buffer
@@ -85,12 +133,13 @@ pub fn initialise() Screen {
 	print("initialising vcurses")
 	time.sleep(1000)
 	os.system('clear')
-	enable_raw_mode()
+	thing := raw_on()
 	size := get_size()
 	mut output := Screen{
 		cursor_pos: Pos{0,0},
 		screen_size: size
-		buffer: Buffer.new("main")
+		buffer: Buffer.new("main"),
+		thing: thing
 	}
 	time.sleep(1000)
 	time.sleep(1000)
@@ -143,15 +192,6 @@ fn readchar() string {
 	mut b := u8(0)
 	C.read(0, &b, 1) // read one byte from stdin
   return b.ascii_str()
-}
-
-fn enable_raw_mode() {
-  os.system("stty raw -echo")
-  os.flush()
-}
-
-fn disable_raw_mode() {
-    os.system("stty sane")
 }
 
 pub fn (mut screen Screen) rect(pos1 Pos, pos2 Pos, attr []string) Screen {
@@ -214,8 +254,8 @@ pub fn (mut screen Screen) getch() string {
 	mut ch := readchar() // or os.input() and take first byte
 	return ch
 }
-pub fn uninit() {
-	disable_raw_mode()
+pub fn uninit(screen Screen) {
+	raw_off(screen.thing)
 	os.system('clear')
 }
 fn (mut screen Screen) add_cells(text []Cell, pos Pos, attr []string) Screen {
