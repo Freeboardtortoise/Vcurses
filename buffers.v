@@ -101,6 +101,7 @@ fn (mut b Buffer) add_cells(text []Cell, pos Pos, attr []string) Buffer {
 }
 
 fn (mut b Buffer) display(mut screen Screen) Buffer {
+	b.refresh(mut screen)
 	for i := 0; i < b.screen_size.height; i++ {
 		for j := 0; j < b.screen_size.width; j++ {
 			if b.buffer[i][j].dirty == true {
@@ -207,4 +208,11 @@ pub fn (mut b Buffer) set_color_pair(fg string, bg string) Buffer{
 }
 pub fn (buffer Buffer) size() Size {
 	return buffer.screen_size
+}
+fn (mut buffer Buffer) refresh(mut screen Screen) Buffer {
+	buffer.move_cursor(Pos{0,0})
+	for row in buffer.buffer {
+		screen.proper_write(row)
+	}
+	return buffer
 }

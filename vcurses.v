@@ -282,3 +282,9 @@ pub fn (mut screen Screen) set_color_pair(fg string, bg string) Screen{
 pub fn (screen Screen) size() Size {
 	return screen.screen_size
 }
+
+pub fn(mut screen Screen) refresh() Screen {
+	screen.buffer.refresh(mut screen)
+	screen.buffer.display(mut screen)
+	return screen
+}
