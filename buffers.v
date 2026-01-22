@@ -101,7 +101,6 @@ fn (mut b Buffer) add_cells(text []Cell, pos Pos, attr []string) Buffer {
 }
 
 fn (mut b Buffer) display(mut screen Screen) Buffer {
-	b.refresh(mut screen)
 	for i := 0; i < b.screen_size.height; i++ {
 		for j := 0; j < b.screen_size.width; j++ {
 			if b.buffer[i][j].dirty == true {
