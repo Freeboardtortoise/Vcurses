@@ -209,9 +209,12 @@ pub fn (buffer Buffer) size() Size {
 	return buffer.screen_size
 }
 fn (mut buffer Buffer) refresh(mut screen Screen) Buffer {
+	os.system('clear')
 	buffer.move_cursor(Pos{0,0})
 	for row in buffer.buffer {
-		screen.proper_write(row)
+		for letter in row {
+			screen.proper_addstr(row)
+		}
 	}
 	return buffer
 }
