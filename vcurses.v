@@ -147,7 +147,6 @@ pub fn initialise() Screen {
 }
 pub fn (mut screen Screen) clear() Screen {
 	os.system('clear')
-	screen.refresh()
 	screen.buffer.clear()
 	screen.buffer.display(mut screen)
 	return screen
