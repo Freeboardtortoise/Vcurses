@@ -149,6 +149,7 @@ pub fn (mut screen Screen) clear() Screen {
 	os.system('clear')
 	screen.buffer.clear()
 	screen.buffer.display(mut screen)
+	screen.refresh()
 	return screen
 }
 pub fn (mut screen Screen) write(text string, attr []string) Screen{
@@ -270,6 +271,10 @@ pub fn (mut screen Screen) addstr(text string, pos Pos, attr []string) Screen {
 }
 fn (mut screen Screen) propper_addstr(text Cell, pos Pos) Screen{
 	screen.move_cursor(pos)
+	screen.proper_write([text])
+	return screen
+}
+fn (mut screen Screen) propper_write_cell(text Cell) Screen{
 	screen.proper_write([text])
 	return screen
 }

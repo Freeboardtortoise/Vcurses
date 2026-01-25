@@ -69,6 +69,11 @@ Notation: Screen.rect(Pos TopLeft, Pos BottomRight, []string attributes) >> none
 ```v
 Notation: Screen.size() >> Size
 ```
+### updating/ refreshing the screen
+this is used when you used ```os.system('clear')```or did something you where not supposed to do like printing
+```v
+Notation: Screen.refresh() >> none
+```
 
 ### Input
 #### Getch

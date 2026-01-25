@@ -1,4 +1,5 @@
 module vcurses
+import os
 /* Buffers
 what is a buffer
 
@@ -213,7 +214,7 @@ fn (mut buffer Buffer) refresh(mut screen Screen) Buffer {
 	buffer.move_cursor(Pos{0,0})
 	for row in buffer.buffer {
 		for letter in row {
-			screen.proper_addstr(row)
+			screen.propper_write_cell(letter)
 		}
 	}
 	return buffer
