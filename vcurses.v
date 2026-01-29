@@ -62,10 +62,10 @@ pub:
 }
 pub struct Screen {
 	screen_size Size
-	thing C.termios
 mut:
 	cursor_pos Pos
 	buffer Buffer
+	thing C.termios
 }
 
 struct Cell {
