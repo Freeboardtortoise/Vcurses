@@ -259,10 +259,10 @@ pub fn uninit(screen Screen) {
 	raw_off(screen.thing)
 	os.system('clear')
 }
-pub fn (Screen screen) pause_raw() {
+pub fn (screen Screen) pause_raw() {
 	raw_off(screen.thing)
 }
-pub fn (mut Screen screen) restart_raw() Screen{
+pub fn (mut screen Screen) restart_raw() Screen{
 	screen.thing = raw_on()
 }
 fn (mut screen Screen) add_cells(text []Cell, pos Pos, attr []string) Screen {
