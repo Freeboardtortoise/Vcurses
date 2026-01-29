@@ -43,6 +43,14 @@ Notation: vcurses.uninit() >> none
 Notation: Screen.clear() >> none
 ```
 returns nothing
+#### Pausing raw mode (for doing things you are not meant to be doing)
+```v
+Notation: Screen.pause_raw() >> none
+```
+#### restart raw mode (for when you are done doing things you where not meant to be doing)
+``` v
+Notation: Screen.restart_raw() >> Screen
+```
 #### Addstr
 addstr is the function to add text to the screen or a buffer in a specific position
 ```v
