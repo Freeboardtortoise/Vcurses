@@ -264,6 +264,7 @@ pub fn (screen Screen) pause_raw() {
 }
 pub fn (mut screen Screen) restart_raw() Screen{
 	screen.thing = raw_on()
+	return screen
 }
 fn (mut screen Screen) add_cells(text []Cell, pos Pos, attr []string) Screen {
 	screen.buffer.add_cells(text, pos, attr)
